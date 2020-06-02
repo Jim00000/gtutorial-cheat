@@ -4,6 +4,8 @@
 namespace {
 	DWORD globShootCounterAddr = 0;
 	BOOL globIsInfiniteAmmoPatched = FALSE;
+	LPVOID globInfiniteAmmoNewMemBlock = NULL;
+	LPVOID globInfiniteAmmoPatchCode = NULL;
 }
 
 DWORD GTutorial::Step1::InitializeShootCounterAddr(HANDLE hProcess, LPBYTE baseAddr) {
@@ -106,4 +108,6 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 
 	// The patch is successful
 	globIsInfiniteAmmoPatched = TRUE;
+	globInfiniteAmmoNewMemBlock = rNewMemBlock;
+	globInfiniteAmmoPatchCode = reinterpret_cast<decltype(globInfiniteAmmoPatchCode)>(victimAddr);
 }
