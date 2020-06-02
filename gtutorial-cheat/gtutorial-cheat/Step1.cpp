@@ -3,6 +3,7 @@
 
 namespace {
 	DWORD globShootCounterAddr = 0;
+	BOOL globIsInfiniteAmmoPatched = FALSE;
 }
 
 DWORD GTutorial::Step1::InitializeShootCounterAddr(HANDLE hProcess, LPBYTE baseAddr) {
@@ -36,6 +37,11 @@ BOOL GTutorial::Step1::WriteShootCounter(HANDLE hProcess, LPBYTE baseAddr, DWORD
 VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize) {
 	using namespace GTutorial::Helper;
 
+	if (globIsInfiniteAmmoPatched == TRUE) {
+		std::cerr << "InfiniteAmmo Cheat is activated. You can patch the code again." << std::endl;
+		return;
+	}
+
 	const BYTE victim[] = {
 		0x83, 0x43, 0x6C, 0x01,			// add dword ptr [rbx+6C],01
 		0x48, 0x89, 0x73, 0x70,			// mov [rbx+70],rsi
@@ -47,8 +53,13 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 	DWORD64 victimAddr = AOBScan(hProcess, baseAddr, baseSize, victim, victimSz);
 	std::cout << "AOBScan : " << (void*)victimAddr << std::endl;
 
-	LPVOID rNewPage = NewMemoryBlock(hProcess, 4096);
-	std::cout << "remote new page : " << (void*)rNewPage << std::endl;
+	if (victimAddr == NULL) {
+		std::cerr << "Cannot find the victim code by AOBScan. Terminate PatchInfiniteAmmo(...) function" << std::endl;
+		return;
+	}
+
+	LPVOID rNewMemBlock = NewMemoryBlock(hProcess, 4096);
+	std::cout << "remote new memory block : " << (void*)rNewMemBlock << std::endl;
 
 	{ // Patch instruction to selected point
 		BYTE shellcode[] = {
@@ -60,7 +71,7 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 
 		DWORD64* pImm = (DWORD64*)&shellcode[2];
 		// Write new memory block address to <target address> of movabs instruction
-		*pImm = (DWORD64)rNewPage;
+		*pImm = (DWORD64)rNewMemBlock;
 
 		if (WriteProcessMemory(hProcess, (LPVOID)victimAddr, shellcode, victimSz, NULL) == 0) {
 			CheckLastError();
@@ -84,8 +95,11 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 		*pImm = (victimAddr + victimSz);
 
 
-		if (WriteProcessMemory(hProcess, rNewPage, shellcode, 26, NULL) == 0) {
+		if (WriteProcessMemory(hProcess, rNewMemBlock, shellcode, 26, NULL) == 0) {
 			CheckLastError();
 		}
 	}
+
+	// The patch is successful
+	globIsInfiniteAmmoPatched = TRUE;
 }
