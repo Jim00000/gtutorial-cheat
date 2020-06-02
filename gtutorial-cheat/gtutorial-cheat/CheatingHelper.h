@@ -16,6 +16,8 @@ namespace GTutorial::Helper {
 
 	LPVOID NewMemoryBlock(HANDLE hProcess, SIZE_T size);
 
+	BOOL FreeMemoryBlock(HANDLE hProcess, LPVOID lpAddress);
+
 	template<typename DataType = DWORD>
 	DataType ReadMemory(HANDLE hProcess, LPCVOID baseAddr)
 	{

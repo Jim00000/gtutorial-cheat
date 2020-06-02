@@ -75,6 +75,8 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 
 		if (WriteProcessMemory(hProcess, (LPVOID)victimAddr, shellcode, victimSz, NULL) == 0) {
 			CheckLastError();
+			FreeMemoryBlock(hProcess, rNewMemBlock);
+			return;
 		}
 	}
 
@@ -97,6 +99,8 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 
 		if (WriteProcessMemory(hProcess, rNewMemBlock, shellcode, 26, NULL) == 0) {
 			CheckLastError();
+			FreeMemoryBlock(hProcess, rNewMemBlock);
+			return;
 		}
 	}
 

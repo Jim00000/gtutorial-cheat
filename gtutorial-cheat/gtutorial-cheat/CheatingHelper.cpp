@@ -109,3 +109,13 @@ LPVOID GTutorial::Helper::NewMemoryBlock(HANDLE hProcess, SIZE_T size)
 
 	return newPage;
 }
+
+BOOL GTutorial::Helper::FreeMemoryBlock(HANDLE hProcess, LPVOID lpAddress)
+{
+	if (VirtualFreeEx(hProcess, lpAddress, 0, MEM_RELEASE) == 0) {
+		CheckLastError();
+		return FALSE;
+	}
+
+	return TRUE;
+}
