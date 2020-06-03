@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClCompile Include="CheatingHelper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Miscellaneous.cpp" />
     <ClCompile Include="Step1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CheatingHelper.h" />
+    <ClInclude Include="Miscellaneous.h" />
     <ClInclude Include="spdlog_wrapper.h" />
     <ClInclude Include="Step1.h" />
   </ItemGroup>

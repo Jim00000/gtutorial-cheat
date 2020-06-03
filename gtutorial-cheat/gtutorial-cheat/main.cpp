@@ -1,10 +1,12 @@
 ﻿#include "Step1.h"
+#include "Miscellaneous.h"
 #include "spdlog_wrapper.h"
 
 int main()
 {
 	using namespace GTutorial::Helper;
 	using namespace GTutorial::Step1;
+	using namespace GTutorial::Misc;
 
 #ifdef _DEBUG
 	spdlog::set_level(spdlog::level::debug);
@@ -39,10 +41,17 @@ int main()
 
 	spdlog::info("Shoot Counter : {:d}", ReadShootCounter(hProcess, baseAddr));
 
+	spdlog::info("Start to patch integrity check code");
+	if (PatchIntegrityCheck(hProcess, baseAddr, baseSize) == TRUE)
+		spdlog::info("Patch integrity check code successfully.");
+	else
+		spdlog::error("Patching integrity check code failed");
+
 	PatchInfiniteAmmo(hProcess, baseAddr, baseSize);
 
-	CloseHandle(hProcess);
 	system("pause");
+
+	CloseHandle(hProcess);
 
 	return EXIT_SUCCESS;
 }
