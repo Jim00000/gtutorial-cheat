@@ -9,9 +9,9 @@ namespace {
     LPVOID globInfiniteAmmoNewMemBlock = NULL;
     LPVOID globInfiniteAmmoPatchCode = NULL;
     const BYTE victim[] = {
-        0x83, 0x43, 0x6C, 0x01,			// add dword ptr [rbx+6C],01
-        0x48, 0x89, 0x73, 0x70,			// mov [rbx+70],rsi
-        0x48, 0x63, 0x43, 0x6C,			// movsxd rax,dword ptr [rbx+6C]
+        0x83, 0x43, 0x6C, 0x01,         // add dword ptr [rbx+6C],01
+        0x48, 0x89, 0x73, 0x70,         // mov [rbx+70],rsi
+        0x48, 0x63, 0x43, 0x6C,         // movsxd rax,dword ptr [rbx+6C]
         0xBA, 0x05, 0x00, 0x00, 0x00    // mov edx,00000005
     };
     constexpr SIZE_T victimSz = 17;
@@ -67,10 +67,10 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
 
     { // Patch instruction to selected point
         BYTE shellcode[] = {
-            0x49, 0xBF,										// movabs r15, <target address>
+            0x49, 0xBF,                                     // movabs r15, <target address>
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //
-            0x41, 0xFF, 0xE7,								// jmp r15
-            0x90, 0x90, 0x90, 0x90							// 4 nops
+            0x41, 0xFF, 0xE7,                               // jmp r15
+            0x90, 0x90, 0x90, 0x90                          // 4 nops
         };
 
         DWORD64* pImm = (DWORD64*)&shellcode[2];
@@ -87,12 +87,12 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
     { // Write data to memory block
         BYTE shellcode[] = {
             // We disable "add dword ptr [rbx+6C],01"
-            0x48, 0x89, 0x73, 0x70,							// mov [rbx+70],rsi
-            0x48, 0x63, 0x43, 0x6C,							// movsxd rax,dword ptr [rbx+6C]
-            0xBA, 0x05, 0x00, 0x00, 0x00,					// mov edx,00000005
-            0x49, 0xBF,										// movabs r15, <target address>
+            0x48, 0x89, 0x73, 0x70,                         // mov [rbx+70],rsi
+            0x48, 0x63, 0x43, 0x6C,                         // movsxd rax,dword ptr [rbx+6C]
+            0xBA, 0x05, 0x00, 0x00, 0x00,                   // mov edx,00000005
+            0x49, 0xBF,                                     // movabs r15, <target address>
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //
-            0x41, 0xFF, 0xE7								// jmp r15
+            0x41, 0xFF, 0xE7                                // jmp r15
         };
 
         DWORD64* pImm = (DWORD64*)&shellcode[15];
