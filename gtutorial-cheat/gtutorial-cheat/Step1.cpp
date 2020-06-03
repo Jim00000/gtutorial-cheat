@@ -72,6 +72,7 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
             0x41, 0xFF, 0xE7,                               // jmp r15
             0x90, 0x90, 0x90, 0x90                          // 4 nops
         };
+        constexpr SIZE_T shellcodeSz = sizeof(shellcode) / sizeof(shellcode[0]);
 
         DWORD64* pImm = (DWORD64*)&shellcode[2];
         // Write new memory block address to <target address> of movabs instruction
