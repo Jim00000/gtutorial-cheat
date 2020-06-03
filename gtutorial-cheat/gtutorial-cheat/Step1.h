@@ -11,5 +11,7 @@ namespace GTutorial::Step1 {
 	BOOL WriteShootCounter(HANDLE hProcess, LPBYTE baseAddr, DWORD value);
 
 	VOID PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize);
+	
+	BOOL UnpatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize);
 
 };
