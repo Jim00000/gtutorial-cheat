@@ -18,7 +18,10 @@ namespace GTutorial::Helper {
 
 	BOOL FreeMemoryBlock(HANDLE hProcess, LPVOID lpAddress);
 
-	template<typename DataType = DWORD>
+	template<
+		typename DataType = DWORD,
+		typename = std::enable_if_t<std::is_scalar_v<DataType>&& std::is_fundamental_v<DataType>>
+	>
 	DataType ReadMemory(HANDLE hProcess, LPCVOID baseAddr)
 	{
 		BYTE buffer[BUFSIZ];
@@ -35,13 +38,18 @@ namespace GTutorial::Helper {
 		return *rAddr;
 	}
 
-	template<typename DataType = DWORD, typename AddrType>
+	template<
+		typename DataType = DWORD, typename AddrType,
+		typename = std::enable_if_t<std::is_scalar_v<DataType> && std::is_fundamental_v<DataType>>
+	>
 	DataType ReadMemory(HANDLE hProcess, AddrType baseAddr)
 	{
-		return ReadMemory<DataType>(hProcess, reinterpret_cast<LPCVOID>(baseAddr));
+		return ReadMemory<DataType>(hProcess, reinterpret_cast<std::enable_if_t<sizeof(LPCVOID) >= sizeof(AddrType), LPCVOID>>(baseAddr));
 	}
 
-	template<typename DataType>
+	template<typename DataType, 
+		typename = std::enable_if_t<std::is_scalar_v<DataType> && std::is_fundamental_v<DataType>>
+	>
 	BOOL WriteMemory(HANDLE hProcess, LPVOID baseAddr, DataType value)
 	{
 		BYTE buffer[BUFSIZ];
@@ -57,10 +65,13 @@ namespace GTutorial::Helper {
 		return TRUE;
 	}
 
-	template<typename DataType, typename AddrType>
-	BOOL WriteMemory(HANDLE hProcess, AddrType baseAddr, DataType value)
-	{
-		return WriteMemory<DataType>(hProcess, reinterpret_cast<LPVOID>(baseAddr), value);
-	}
+    template<
+        typename DataType, typename AddrType,
+        typename = std::enable_if_t<std::is_scalar_v<DataType> && std::is_fundamental_v<DataType>>
+	>
+    BOOL WriteMemory(HANDLE hProcess, AddrType baseAddr, DataType value)
+    {
+        return WriteMemory<DataType>(hProcess, reinterpret_cast<std::enable_if_t<sizeof(LPVOID) >= sizeof(AddrType), LPVOID>>(baseAddr), value);
+    }
 
 }
