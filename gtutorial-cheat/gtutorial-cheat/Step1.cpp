@@ -70,7 +70,7 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
             0x49, 0xBF,                                     // movabs r15, <target address>
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //
             0x41, 0xFF, 0xE7,                               // jmp r15
-            0x90, 0x90, 0x90, 0x90                          // 4 nops
+            0x0F, 0x1F, 0x40, 0x08                          // nop DWORD PTR [rax+0x8]
         };
         constexpr SIZE_T shellcodeSz = sizeof(shellcode) / sizeof(shellcode[0]);
         static_assert(shellcodeSz == gVictimSz, "shellcodeSz must be equal to gVictimSz");
