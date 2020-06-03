@@ -14,7 +14,7 @@ namespace {
         0x48, 0x63, 0x43, 0x6C,         // movsxd rax,dword ptr [rbx+6C]
         0xBA, 0x05, 0x00, 0x00, 0x00    // mov edx,00000005
     };
-    constexpr SIZE_T gVictimSz = 17;
+    constexpr SIZE_T gVictimSz = sizeof(gVictim) / sizeof(gVictim[0]);
 
 }
 
