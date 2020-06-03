@@ -5,16 +5,16 @@ namespace {
     DWORD globShootCounterAddr = 0;
 
     /* For infinite ammo patch */
-    BOOL globIsInfiniteAmmoPatched = FALSE;
-    LPVOID globInfiniteAmmoNewMemBlock = NULL;
-    LPVOID globInfiniteAmmoPatchCode = NULL;
-    const BYTE victim[] = {
+    BOOL gIsInfiniteAmmoPatched = FALSE;
+    LPVOID gInfiniteAmmoNewMemBlock = NULL;
+    LPVOID gInfiniteAmmoPatchCode = NULL;
+    const BYTE gVictim[] = {
         0x83, 0x43, 0x6C, 0x01,         // add dword ptr [rbx+6C],01
         0x48, 0x89, 0x73, 0x70,         // mov [rbx+70],rsi
         0x48, 0x63, 0x43, 0x6C,         // movsxd rax,dword ptr [rbx+6C]
         0xBA, 0x05, 0x00, 0x00, 0x00    // mov edx,00000005
     };
-    constexpr SIZE_T victimSz = 17;
+    constexpr SIZE_T gVictimSz = 17;
 
 }
 
@@ -49,12 +49,12 @@ BOOL GTutorial::Step1::WriteShootCounter(HANDLE hProcess, LPBYTE baseAddr, DWORD
 VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize) {
     using namespace GTutorial::Helper;
 
-    if (globIsInfiniteAmmoPatched == TRUE) {
+    if (gIsInfiniteAmmoPatched == TRUE) {
         std::cerr << "InfiniteAmmo Cheat is activated. You can patch the code again." << std::endl;
         return;
     }
 
-    DWORD64 victimAddr = AOBScan(hProcess, baseAddr, baseSize, victim, victimSz);
+    DWORD64 victimAddr = AOBScan(hProcess, baseAddr, baseSize, gVictim, gVictimSz);
     std::cout << "AOBScan : " << (void*)victimAddr << std::endl;
 
     if (victimAddr == NULL) {
@@ -77,7 +77,7 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
         // Write new memory block address to <target address> of movabs instruction
         *pImm = (DWORD64)rNewMemBlock;
 
-        if (WriteProcessMemory(hProcess, (LPVOID)victimAddr, shellcode, victimSz, NULL) == 0) {
+        if (WriteProcessMemory(hProcess, (LPVOID)victimAddr, shellcode, gVictimSz, NULL) == 0) {
             CheckLastError();
             FreeMemoryBlock(hProcess, rNewMemBlock);
             return;
@@ -98,7 +98,7 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
         DWORD64* pImm = (DWORD64*)&shellcode[15];
         // Write return address (back to vicitm code) 
         // to <target address> of movabs instruction
-        *pImm = (victimAddr + victimSz);
+        *pImm = (victimAddr + gVictimSz);
 
 
         if (WriteProcessMemory(hProcess, rNewMemBlock, shellcode, 26, NULL) == 0) {
@@ -109,41 +109,41 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
     }
 
     // The patch is successful
-    globIsInfiniteAmmoPatched = TRUE;
-    globInfiniteAmmoNewMemBlock = rNewMemBlock;
-    globInfiniteAmmoPatchCode = reinterpret_cast<decltype(globInfiniteAmmoPatchCode)>(victimAddr);
+    gIsInfiniteAmmoPatched = TRUE;
+    gInfiniteAmmoNewMemBlock = rNewMemBlock;
+    gInfiniteAmmoPatchCode = reinterpret_cast<decltype(gInfiniteAmmoPatchCode)>(victimAddr);
 }
 
 BOOL GTutorial::Step1::UnpatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize) {
     using namespace GTutorial::Helper;
 
-    if (globIsInfiniteAmmoPatched == FALSE) {
+    if (gIsInfiniteAmmoPatched == FALSE) {
         std::cerr << "Infinite ammo patch is not applied" << std::endl;
         return FALSE;
     }
 
-    if (globInfiniteAmmoPatchCode == NULL) {
+    if (gInfiniteAmmoPatchCode == NULL) {
         std::cerr << "We do not know where the \"infinite ammo\" patch is applied to" << std::endl;
         return FALSE;
     }
 
-    if (globInfiniteAmmoNewMemBlock == NULL) {
+    if (gInfiniteAmmoNewMemBlock == NULL) {
         std::cerr << "We do not know where is the memory block of \"infinite ammo\"" << std::endl;
         return FALSE;
     }
 
-    if (WriteProcessMemory(hProcess, (LPVOID)globInfiniteAmmoPatchCode, victim, victimSz, NULL) == 0) {
+    if (WriteProcessMemory(hProcess, (LPVOID)gInfiniteAmmoPatchCode, gVictim, gVictimSz, NULL) == 0) {
         CheckLastError();
         return FALSE;
     }
     
-    globIsInfiniteAmmoPatched = FALSE;
-    globInfiniteAmmoPatchCode = NULL;
+    gIsInfiniteAmmoPatched = FALSE;
+    gInfiniteAmmoPatchCode = NULL;
 
-    if (FreeMemoryBlock(hProcess, globInfiniteAmmoNewMemBlock) == FALSE) {
+    if (FreeMemoryBlock(hProcess, gInfiniteAmmoNewMemBlock) == FALSE) {
         return FALSE;
     }
 
-    globInfiniteAmmoNewMemBlock = NULL;
+    gInfiniteAmmoNewMemBlock = NULL;
     return TRUE;
 }
