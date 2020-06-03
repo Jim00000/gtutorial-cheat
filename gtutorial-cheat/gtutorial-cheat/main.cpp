@@ -51,6 +51,11 @@ int main()
 
 	system("pause");
 
+	if (UnpatchIntegrityCheck(hProcess, baseAddr, baseSize) == TRUE)
+		spdlog::info("Unpatch integrity check code successfully.");
+	else
+		spdlog::error("Unpatching integrity check code failed");
+
 	CloseHandle(hProcess);
 
 	return EXIT_SUCCESS;

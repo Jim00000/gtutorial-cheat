@@ -47,3 +47,27 @@ BOOL GTutorial::Misc::PatchIntegrityCheck(HANDLE hProcess, LPBYTE baseAddr, DWOR
 
     return TRUE;
 }
+
+BOOL GTutorial::Misc::UnpatchIntegrityCheck(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize) {
+    using namespace GTutorial::Helper;
+
+    if (gIsIntegrityCheckPatched == FALSE) {
+        spdlog::error("Integrity check patch is not applied");
+        return FALSE;
+    }
+
+    if (gIntegrityCheckCodeAddr == NULL) {
+        spdlog::error("We do not know where the integrity check patch is applied to");
+        return FALSE;
+    }
+
+    if (WriteProcessMemory(hProcess, (LPVOID)gIntegrityCheckCodeAddr, gIntegrityCode, gIntegrityCodeSz, NULL) == 0) {
+        CheckLastError();
+        return FALSE;
+    }
+
+    gIsIntegrityCheckPatched = TRUE;
+    gIntegrityCheckCodeAddr = NULL;
+
+    return TRUE;
+}
