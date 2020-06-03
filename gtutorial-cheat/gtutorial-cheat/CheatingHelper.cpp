@@ -1,7 +1,7 @@
 #include "CheatingHelper.h"
 
 #include <tlhelp32.h>
-#include <iostream>
+#include "spdlog_wrapper.h"
 
 VOID GTutorial::Helper::CheckLastError()
 {
@@ -19,7 +19,7 @@ VOID GTutorial::Helper::CheckLastError()
 
 	std::string message(lpMsgBuf, size);
 	LocalFree(lpMsgBuf);
-	std::cerr << message;
+	spdlog::error(message);
 }
 
 BOOL GTutorial::Helper::GetProcessBaseAddr(DWORD pid, LPBYTE& baseAddr, DWORD& baseSize) {

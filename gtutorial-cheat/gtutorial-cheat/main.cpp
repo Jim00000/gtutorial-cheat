@@ -1,25 +1,33 @@
 ﻿#include "Step1.h"
-#include <iostream>
+#include "spdlog_wrapper.h"
 
 int main()
 {
 	using namespace GTutorial::Helper;
 	using namespace GTutorial::Step1;
 
+#ifdef _DEBUG
+	spdlog::set_level(spdlog::level::debug);
+#else
+	spdlog::set_level(spdlog::level::info);
+#endif
+
 	LPCWSTR procName = L"gtutorial-x86_64.exe";
 	DWORD processId = GetProcessIdByName(procName);
 
 	if (processId == 0) {
-		std::cerr << "Can not find the process \"gtutorial-x86_64.exe\"" << std::endl;
+		spdlog::critical(L"Can not find the process {}. End this program.", procName);
 		return EXIT_FAILURE;
 	}
+
+	spdlog::info(L"Get process id of {} successfully.", procName);
 
 	PBYTE baseAddr = NULL;
 	DWORD baseSize = 0;
 	if (GetProcessBaseAddr(processId, baseAddr, baseSize)) {
-		std::cout << "Process Id   : " << processId << std::endl;
-		std::cout << "Base Address : " << reinterpret_cast<void*>(baseAddr) << std::endl;
-		std::cout << "Base Size    : " << std::hex << baseSize << std::endl;
+		spdlog::debug("Process Id   : {:d}", processId);
+		spdlog::debug("Base Address : {:016x}", reinterpret_cast<DWORD64>(baseAddr));
+		spdlog::debug("Base Size    : {:x}", baseSize);
 	}
 
 	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
@@ -29,7 +37,7 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	std::cout << "ShootCounter : " << ReadShootCounter(hProcess, baseAddr) << std::endl;
+	spdlog::info("Shoot Counter : {:d}", ReadShootCounter(hProcess, baseAddr));
 
 	PatchInfiniteAmmo(hProcess, baseAddr, baseSize);
 

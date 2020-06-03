@@ -1,5 +1,5 @@
-#include <iostream>
 #include "Step1.h"
+#include "spdlog_wrapper.h"
 
 namespace {
     DWORD gShootCounterAddr = 0;
@@ -50,20 +50,20 @@ VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD
     using namespace GTutorial::Helper;
 
     if (gIsInfiniteAmmoPatched == TRUE) {
-        std::cerr << "InfiniteAmmo Cheat is activated. You can patch the code again." << std::endl;
+        spdlog::error("InfiniteAmmo patch is applied. You can not patch the code again.");
         return;
     }
 
     DWORD64 victimAddr = AOBScan(hProcess, baseAddr, baseSize, gVictim, gVictimSz);
-    std::cout << "AOBScan : " << (void*)victimAddr << std::endl;
+    spdlog::debug("AOBScan : {:016x}", victimAddr);
 
     if (victimAddr == NULL) {
-        std::cerr << "Cannot find the victim code by AOBScan. Terminate PatchInfiniteAmmo(...) function" << std::endl;
+        spdlog::error("Cannot find the victim code by AOBScan. Abort {} function", __FUNCTION__);
         return;
     }
 
     LPVOID rNewMemBlock = NewMemoryBlock(hProcess, 4096);
-    std::cout << "remote new memory block : " << (void*)rNewMemBlock << std::endl;
+    spdlog::debug("Remote new memory block : {:016x}", reinterpret_cast<DWORD64>(rNewMemBlock));
 
     { // Patch instruction to selected point
         BYTE shellcode[] = {
@@ -121,17 +121,17 @@ BOOL GTutorial::Step1::UnpatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWO
     using namespace GTutorial::Helper;
 
     if (gIsInfiniteAmmoPatched == FALSE) {
-        std::cerr << "Infinite ammo patch is not applied" << std::endl;
+        spdlog::error("Infinite ammo patch is not applied");
         return FALSE;
     }
 
     if (gInfiniteAmmoPatchCode == NULL) {
-        std::cerr << "We do not know where the \"infinite ammo\" patch is applied to" << std::endl;
+        spdlog::error("We do not know where the infinite ammo patch is applied to");
         return FALSE;
     }
 
     if (gInfiniteAmmoNewMemBlock == NULL) {
-        std::cerr << "We do not know where is the memory block of \"infinite ammo\"" << std::endl;
+        spdlog::error("We do not know where is the memory block of infinite ammo");
         return FALSE;
     }
 

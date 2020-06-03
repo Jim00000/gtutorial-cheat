@@ -32,5 +32,8 @@
     <ClInclude Include="Step1.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="spdlog_wrapper.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
