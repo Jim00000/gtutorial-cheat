@@ -2,7 +2,7 @@
 #include "Step1.h"
 
 namespace {
-    DWORD globShootCounterAddr = 0;
+    DWORD gShootCounterAddr = 0;
 
     /* For infinite ammo patch */
     BOOL gIsInfiniteAmmoPatched = FALSE;
@@ -29,21 +29,21 @@ DWORD GTutorial::Step1::InitializeShootCounterAddr(HANDLE hProcess, LPBYTE baseA
 DWORD GTutorial::Step1::ReadShootCounter(HANDLE hProcess, LPBYTE baseAddr) {
     using namespace GTutorial::Helper;
 
-    if (globShootCounterAddr == 0) {
-        globShootCounterAddr = InitializeShootCounterAddr(hProcess, baseAddr);
+    if (gShootCounterAddr == 0) {
+        gShootCounterAddr = InitializeShootCounterAddr(hProcess, baseAddr);
     }
 
-    return ReadMemory(hProcess, globShootCounterAddr);
+    return ReadMemory(hProcess, gShootCounterAddr);
 }
 
 BOOL GTutorial::Step1::WriteShootCounter(HANDLE hProcess, LPBYTE baseAddr, DWORD value) {
     using namespace GTutorial::Helper;
 
-    if (globShootCounterAddr == 0) {
-        globShootCounterAddr = InitializeShootCounterAddr(hProcess, baseAddr);
+    if (gShootCounterAddr == 0) {
+        gShootCounterAddr = InitializeShootCounterAddr(hProcess, baseAddr);
     }
 
-    return WriteMemory(hProcess, globShootCounterAddr, value);
+    return WriteMemory(hProcess, gShootCounterAddr, value);
 }
 
 VOID GTutorial::Step1::PatchInfiniteAmmo(HANDLE hProcess, LPBYTE baseAddr, DWORD baseSize) {
